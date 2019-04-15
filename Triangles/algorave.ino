@@ -1,5 +1,7 @@
 //FOR ARDUINO CONSOLE 
 //code has been referenced from multiple locations
+// tutorial on arduino and processing communication: https://maker.pro/arduino/tutorial/how-to-make-arduino-and-processing-ide-communicate
+// harshikajain  x  sisiyu
 
 int ledPin = 7;
 int potPin = A0; //initialise potentiometer
