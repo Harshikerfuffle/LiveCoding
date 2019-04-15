@@ -1,4 +1,5 @@
-// code has been referenced from different locations
+// FOR PROCESSING CONSOLE 
+//code has been referenced from different locations
 //triangles code: https://www.openprocessing.org/sketch/584467
 // tutorial on arduino and processing communication: https://maker.pro/arduino/tutorial/how-to-make-arduino-and-processing-ide-communicate
 // harshikajain  x  sisiyu
