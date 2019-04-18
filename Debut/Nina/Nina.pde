@@ -154,7 +154,11 @@ void draw() {
 
 //---------------------------------------------------------------------------------------
   if (beat.isOnset()) {
-    background(255);
+    background(255,0,0);
+    
+    //Display lines
+    //stroke(255);
+    //strokeWeight(5);
     //Albers(); 
   }
 
