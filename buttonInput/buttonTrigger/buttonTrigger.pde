@@ -282,7 +282,6 @@ void pinkFloyd(){
      w . endShape ();
      
     noFill ();
-  
   // SQUARES CIRCLE MOVE
   for (int i = 0; i < width; i++) {
     maxX = ( float ) 180 / width * song.mix.get(i)*800 ;
