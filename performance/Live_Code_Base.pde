@@ -61,10 +61,6 @@ void setup() {
   beat = new BeatDetect();
   beat.setSensitivity(400);
 
-  //Connect to Arduino
-  //myPort = new Serial(this, "/dev/cu.usbmodem14301", 9600);
-  //myPort.bufferUntil ( '\n' ); // Receiving the data from the Arduino IDE
-  
   //Audio from synth
   in2 = new AudioIn(this,0);
   //in2.start(); 
