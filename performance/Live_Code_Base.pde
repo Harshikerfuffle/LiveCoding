@@ -7,6 +7,7 @@
 
 //Base file setup for future shows
 // sisixiyu x harshikajain
+//----------------------------------------------------------------------------
 
 //Imported libraries 
 import vsync.*;
@@ -57,7 +58,6 @@ void setup() {
   cam = new PeasyCam(this, 500);
 
   minim = new Minim(this);
-  //in = minim.getLineIn(Minim, STEREO, 1024);
   beat = new BeatDetect();
   beat.setSensitivity(400);
 
