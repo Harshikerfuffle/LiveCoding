@@ -39,14 +39,7 @@ color line1 = color(255, 255, 255);
 //color line2 = color(148,0,211);
 color line2 = color(34, 58, 116);
 
-//initialize for pinkFloyd
-float maxX;
-float maxY;
-float x;
-float y;
-int r =  200 ; // right, moving right to the center
-
-//initialize for estrillita
+//initialize for estrellita
 int total   = 200;
 Estrellita[] estrellitas;
 
@@ -219,34 +212,33 @@ void circleBoom () {
 }
 
 //----------------------------------------------------------------------------
-void starBoom () {
-  star(float x, float y, float radius1, float radius2, int npoints) {
-
-    cam.beginHUD();
-    for (int i = 0; i < width; i++) {
-      stroke(255, 50, 100, song.mix.get(i)*500); //hotpink 
-      //stroke(200, 155, 0, song.mix.get(i)*500); //light green
-      //line(i, height/2 + song.mix.get(i)*400, i, height/2 - song.mix.get(i)*400);
-      //star(i, i, height/2 + song.mix.get(i)*400, height/2 - song.mix.get(i)*400, 8);
-      star(width/2, height/2, height/4 + song.mix.get(i)*400, height/4 - song.mix.get(i)*400, 8);
-    }
-    cam.endHUD();
-
-
-    float angle = TWO_PI / npoints;
-    float halfAngle = angle/2.0;
-    beginShape();
-    for (float a = 0; a < TWO_PI; a += angle) {
-      float sx = x + cos(a) * radius2;
-      float sy = y + sin(a) * radius2;
-      vertex(sx, sy);
-      sx = x + cos(a+halfAngle) * radius1;
-      sy = y + sin(a+halfAngle) * radius1;
-      vertex(sx, sy);
-    }
-    endShape(CLOSE);
+void starBoom() {
+  cam.beginHUD();
+  for (int i = 0; i < width; i++) {
+    stroke(255, 50, 100, song.mix.get(i)*500); //hotpink 
+    //stroke(200, 155, 0, song.mix.get(i)*500); //light green
+    //line(i, height/2 + song.mix.get(i)*400, i, height/2 - song.mix.get(i)*400);
+    //star(i, i, height/2 + song.mix.get(i)*400, height/2 - song.mix.get(i)*400, 8);
+    star(width/2, height/2, height/4 + song.mix.get(i)*400, height/4 - song.mix.get(i)*400, 8);
   }
+  cam.endHUD();
 }
+
+void star(float x, float y, float radius1, float radius2, int npoints) {
+  float angle = TWO_PI / npoints;
+  float halfAngle = angle/2.0;
+  beginShape();
+  for (float a = 0; a < TWO_PI; a += angle) {
+    float sx = x + cos(a) * radius2;
+    float sy = y + sin(a) * radius2;
+    vertex(sx, sy);
+    sx = x + cos(a+halfAngle) * radius1;
+    sy = y + sin(a+halfAngle) * radius1;
+    vertex(sx, sy);
+  }
+  endShape(CLOSE);
+}
+
 //----------------------------------------------------------------------------
 
 void estrellita() {
