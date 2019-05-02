@@ -9,6 +9,8 @@
 // sisixiyu x harshikajain
 
 //----------------------------------------------------------------------------
+Rain r1;
+
 import vsync.*;
 import peasy.*;
 import processing.serial.*;
@@ -46,6 +48,21 @@ float x;
 float y;
 int r =  200 ; // right, moving right to the center
 
+//rain setup
+int numDrops = 100;
+Rain[] drops = new Rain[numDrops]; // Declare and create the array
+
+
+PGraphics pg;
+
+// Flowfield object
+FlowField flowfield;
+// An ArrayList of brushes
+ArrayList<PaintBrush> brushes;
+
+int maxparticles = 40000;
+
+
 //----------------------------------------------------------------------------
 void setup() {
   size(600, 400, P3D);
@@ -55,14 +72,28 @@ void setup() {
   beat = new BeatDetect();
   beat.setSensitivity(400);
 
-  myPort = new Serial(this, "/dev/cu.usbmodem14301", 9600);
+  myPort = new Serial(this, "/dev/cu.usbmodem1421", 9600);
   // don't generate a serialEvent() unless you get a newline character:
   //myPort.bufferUntil('\n'); // Receiving the data from the Arduino IDE
 
   minim = new Minim(this);
-  song = minim.loadFile("Nucleya - Bass Rani - 02 Bass Rani.mp3");
+  song = minim.loadFile("/Users/sisi/Desktop/LiveCoding/Debut/Uyan.mp3");
   song.play();
   song.loop(3);
+  
+  
+    for (int i = 0; i < drops.length; i++) {
+
+    drops[i] = new Rain(); // Create each object
+    r1 = new Rain();
+  }
+  
+  //brushes
+  flowfield = new FlowField(50);
+  brushes = new ArrayList<PaintBrush>();
+  
+  
+  
 }
 
 //----------------------------------------------------------------------------
@@ -75,16 +106,75 @@ void serialEvent  (Serial myPort) {
 
 //----------------------------------------------------------------------------
 void draw() {
-  //if (millis() < 4000){}
-  //else{
-  //  println("Serial Message Received: " + inByte); // print it:
-  
-    //if (inByte > 4){ // check if this can read potentiometer values
-    //background (150, 50, changing_colour);
+
+     //Loop through array to use objects. RAIN
+     
+    
+     background(0);
+     beat.detect(song.mix); //change to in.mix
+     float freqMix = song.mix.get(int(x)); 
+    float freqLeft = song.left.get(int(x));
+    float freqRight = song.right.get(int(x));
+    float amp = song.mix.level(); 
+    float size = freqMix * 100 *amp; 
+    float red = map(freqLeft, -1, 1, 0, 200);
+    float green = map(freqRight, -1, 1, 0, 50);
+    float blue = map(freqMix, -1, 1, 0, 55);
+    float opacity = map(amp, 0, 0.4, 20, 100);
+   
+   
+     cam.beginHUD();
+    //for (int i = 0; i < drops.length; i++) {
+    //drops[i].fall();
     //}
     
+     for (int i=0; i<width; i++){
+    
+   //spikes level 
+    blendMode(ADD);
+    //stroke(0,30,230); 
+    //stroke(0,30,230);
+    //strokeWeight(10);  //10
+    //line(i, height/2+song.mix.get(i)*300, i, height/2-song.mix.get(i)*300); 
+    //stroke(255,255,0);
+    //line(i, height/4 + freqLeft*300, i, height/2 - freqLeft*300);
+    //stroke(255,0,0);
+    ////line(i, height/2 + freqRight*600, i, height/2 - freqRight*600); 
+   
+   //circle
+   stroke(255,0,0); 
+   noFill();
+   strokeWeight(5); 
+   ellipse(width/2,height/2, height/4+song.mix.get(i)*300, height/4+song.mix.get(i)*300);
+   
+   stroke(255);
+   strokeWeight(1); 
+  // if((i%10)==0){
+  //   line(200, song.mix.get(i)*300+200, 400, song.mix.get(i)*300+200);
+  //} else {
+  //   line(250, song.mix.get(i)*300+200, 400, song.mix.get(i)*300+200);
+  // }
+   }
+    
+   //---------------------------------------------------------------------------------
+
+//calm flow 
+    for (int i = 0; i < brushes.size (); i++) {
+    PaintBrush v = brushes.get(i);
+    v.follow(flowfield);
+    v.run();
+    if (v.isDead()) {
+      brushes.remove(i);
+    }
+  }
+  addBrushes();
+  
+  //----------------------------------------------------------------------------------
+  
+  
+  
     if (inByte == 1){
-    crazyCircle();
+     crazyCircle();
     }
     
     if (inByte == 2){
@@ -114,13 +204,17 @@ void draw() {
   if (mousePressed && (mouseButton == RIGHT)) {
     myPort.write('0');
   }
+  
+  cam.endHUD();
+  
 }
 //----------------------------------------------------------------------------
 void crazyCircle() {
   //comment the background in and out 
   //background(changing_colour, 150, 50); // Initial background color, when we will open the serial window
-  background(0); // Initial background color, when we will open the serial window
-
+  
+  //background(0); // Initial background color, when we will open the serial window
+  blendMode(ADD); 
   beat.detect(song.mix);
   
   blendMode(NORMAL);
@@ -183,7 +277,7 @@ void crazyCircle() {
  
 //----------------------------------------------------------------------------
 void Albers(){
-  background(0);
+  //background(0);
   strokeWeight(3);
   translate(width/2, height/2);
   
@@ -227,7 +321,7 @@ float y4(float t) {
 
 //----------------------------------------------------------------------------
 void circleBoom (){
-  background(0);
+  
   noFill();
   float amplitude = song.mix.level();
   float size = amplitude * 1000;
@@ -258,7 +352,7 @@ void star(float x, float y, float radius1, float radius2, int npoints) {
 //----------------------------------------------------------------------------
 void pinkFloyd(){
   // BACKGROUND, + FIXED FIGURES
-  background ( 0 );
+  
   stroke ( 255 );
   noFill ();
   smooth();
@@ -380,6 +474,166 @@ void pinkFloyd(){
     popMatrix ();
   }
 }
+
+
+//class rain ---------------------------------------------------------------------
+class Rain {
+  float r = random(width);
+  float y = random(-height);
+
+  void fall() {
+    y = y + 7;
+    // yellow
+    //fill(255,255,0);
+     //red
+    fill(255,0,0);
+    
+    //shape of ellipse
+    ellipse(r, y, 2, 10);
+
+   if(y>height){
+   r = random(width);
+   y = random(-200);
+   }
+
+  }
+}
+
+void addBrushes() {
+  if (brushes.size() < maxparticles) {
+    for (int k = 0; k < 50; k++) {
+      brushes.add(new PaintBrush(new PVector(random(-200, width+200), random(-200, height+200)), random(2, 5), random(0.1, 0.5)));
+    }
+  }
+}
+class PaintBrush {
+
+  // The usual stuff
+  PVector location;
+  PVector velocity;
+  PVector acceleration;
+  float r;
+  float maxforce;    // Maximum steering force
+  float maxspeed;    // Maximum speed
+  boolean dead;
+  color col;
+
+  PaintBrush(PVector l, float ms, float mf) {
+    location = l.get();
+    r = 5.0;
+    maxspeed = ms;
+    maxforce = mf;
+    acceleration = new PVector(0, 0);
+    velocity = new PVector(0, 0);
+    float r = random(1);
+    if (r < 0.2) {
+      col = color(#0d1337);
+    } else if (r >= 0.2 && r < 0.4) {
+      col = color(#8cafd9);
+    } else if (r >= 0.4 && r < 0.6) {
+      col = color(#2e48b6);
+    } else if (r >= 0.6 && r < 0.8) {
+      col = color(#486dd5);
+    } else {
+      col = color(#c8e4f2);
+    }
+  }
+
+  public void run() {
+    update();
+    borders();
+    display();
+  }
+
+
+  // Implementing Reynolds' flow field following algorithm
+  // http://www.red3d.com/cwr/steer/FlowFollow.html
+  void follow(FlowField flow) {
+    // What is the vector at that spot in the flow field?
+    PVector desired = flow.lookup(location);
+    // Scale it up by maxspeed
+    desired.mult(maxspeed);
+    // Steering is desired minus velocity
+    PVector steer = PVector.sub(desired, velocity);
+    steer.limit(maxforce);  // Limit to maximum steering force
+    applyForce(steer);
+  }
+
+  void applyForce(PVector force) {
+    // We could add mass here if we want A = F / M
+    acceleration.add(force);
+  }
+
+  // Method to update location
+  void update() {
+    // Update velocity
+    velocity.add(acceleration);
+    // Limit speed
+    velocity.limit(maxspeed);
+    location.add(velocity);
+    // Reset accelertion to 0 each cycle
+    acceleration.mult(0);
+  }
+
+  void display() {
+    stroke(col, 175);
+    strokeWeight(5);
+    point(location.x, location.y);
+  }
+
+  // Wraparound
+  void borders() {
+    if (location.x < 0-200 || location.x > width+200 || location.y < 0-200 || location.y > height+200) {
+      dead = true;
+    } else {
+      dead = false;
+    }
+  }
+  
+  boolean isDead() {
+    return dead;
+  }
+}
+
+class FlowField {
+
+  // A flow field is a two dimensional array of PVectors
+  PVector[][] field;
+  int cols, rows; // Columns and Rows
+  int resolution; // How large is each "cell" of the flow field
+
+  FlowField(int r) {
+    resolution = r;
+    // Determine the number of columns and rows based on sketch's width and height
+    cols = width/resolution;
+    rows = height/resolution;
+    field = new PVector[cols][rows];
+    init();
+  }
+
+  void init() {
+    // Reseed noise so we get a new flow field every time
+    noiseSeed((int)random(10000));
+    float xoff = 0;
+    for (int i = 0; i < cols; i++) {
+      float yoff = 0;
+      for (int j = 0; j < rows; j++) {
+        float theta = map(noise(xoff,yoff),0,1,0,TWO_PI);
+        // Polar to cartesian coordinate transformation to get x and y components of the vector
+        field[i][j] = new PVector(cos(theta),sin(theta));
+        yoff += 0.1;
+      }
+      xoff += 0.1;
+    }
+  }
+
+  PVector lookup(PVector lookup) {
+    int column = int(constrain(lookup.x/resolution,0,cols-1));
+    int row = int(constrain(lookup.y/resolution,0,rows-1));
+    return field[column][row].get();
+  }
+}
+//----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 void stop() {

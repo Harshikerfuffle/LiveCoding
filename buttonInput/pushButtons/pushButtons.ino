@@ -26,7 +26,7 @@ void loop() {
   int bReading4 = digitalRead(button4);
   potOutput = analogRead(potPin);
   
-  int mappedOutput = map(potOutput, 0, 1023, 0, 255); //map the output
+//  int mappedOutput = map(potOutput, 0, 1023, 0, 255); //map the output
   
   // the purpose here is to send discrete values out to processing to pick 
   // it up and then execute accordingly
