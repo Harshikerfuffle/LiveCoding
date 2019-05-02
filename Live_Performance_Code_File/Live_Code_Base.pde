@@ -26,7 +26,7 @@ Minim minim;
 AudioIn in2; 
 AudioInput in;
 BeatDetect beat;
-//AudioPlayer song;
+//AudioInput song; 
 
 PeasyCam cam;
 
@@ -41,7 +41,7 @@ color line3 = color(255, 255, 255);
 color line4 = color(34, 58, 116);
 
 
-// Flowfield object
+// initialize for Flowfield object
 FlowField flowfield;
 // An ArrayList of brushes
 ArrayList<PaintBrush> brushes;
@@ -50,7 +50,6 @@ float x = 33;
 color line1 = color(243,229,182); 
 //color line2 = color(148,0,211);
 color line2 = color(255,241,94);
-
 
 //----------------------------------------------------------------------------
 void setup() {
@@ -72,12 +71,12 @@ void setup() {
   //song.play();
   //song.loop(4);
   
-  //initialize flowdield 
+  //initialize flowfield 
   flowfield = new FlowField(50);
   brushes = new ArrayList<PaintBrush>();
-  
 }
 
+//----------------------------------------------------------------------------
 void draw() {
   //set background color 
    background(0); //RBG values 
@@ -85,7 +84,6 @@ void draw() {
    beat.detect(in.left); 
    beat.detect(in.right); 
    
- 
    //Start CAM, Map to size
    cam.beginHUD();
    
@@ -271,8 +269,10 @@ void circleBoom () {
   ellipse(width/2, height/2, size, size);
   cam.endHUD();
 }
+
 //----------------------------------------------------------------------------
 void starBoom() {
+
   cam.beginHUD();
   for (int i = 0; i < width; i++) {
     stroke(255, 50, 100, in.mix.get(i)*500); //hotpink 
@@ -311,6 +311,7 @@ void addBrushes() {
   }
 }
 
+//--------------------------------------------------------------------------------------
 class PaintBrush {
 
   // The usual stuff
@@ -400,6 +401,7 @@ class PaintBrush {
   }
 }
 
+//--------------------------------------------------------------------------------------
 class FlowField {
   // A flow field is a two dimensional array of PVectors
   PVector[][] field;
