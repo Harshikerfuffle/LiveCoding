@@ -138,8 +138,6 @@ void draw() {
 
 //------------------------------------------------------------------------------------------------------------------------------------------------
 void crazyCircle() {
-  //comment the background in and out 
-  //background(changing_colour, 150, 50); // Initial background color, when we will open the serial window
   background(0); // Initial background color, when we will open the serial window
 
   blendMode(NORMAL);
