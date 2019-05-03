@@ -11,9 +11,8 @@
 
 //Imported libraries 
 import vsync.*;
-import peasy.*;
-import processing.serial.*;
-import processing.sound.*;
+import peasy.*; //camera
+import processing.sound.*; //for catching sound files 
 
 import ddf.minim.*;
 import ddf.minim.analysis.*;
