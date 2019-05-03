@@ -138,8 +138,7 @@ void draw() {
 
 //------------------------------------------------------------------------------------------------------------------------------------------------
 void crazyCircle() {
-  background(0); // Initial background color, when we will open the serial window
-
+ 
   blendMode(NORMAL);
   perspective(PI/3.0, width/ height, 10.0, 1000000.0);
 
@@ -201,7 +200,6 @@ void crazyCircle() {
 
 //----------------------------------------------------------------------------
 void Albers() {
-  background(0);
   strokeWeight(3);
   translate(width/2, height/2);
 
@@ -254,7 +252,6 @@ float y4(float t) {
 
 //----------------------------------------------------------------------------
 void circleBoom () {
-  background(0);
   noFill();
   float amplitude = in.mix.level();
   float size = amplitude * 1000;
