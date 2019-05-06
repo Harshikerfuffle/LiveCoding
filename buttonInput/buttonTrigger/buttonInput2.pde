@@ -28,8 +28,6 @@ AudioPlayer song;
 
 Serial myPort; //initialise variable myPort for serial communication
 PeasyCam cam;
-
-float changing_colour; //variable for changing background colour
 int inByte;
 
 //initialize for Albers
