@@ -21,6 +21,8 @@ import ddf.minim.signals.*;
 import ddf.minim.spi.*;
 import ddf.minim.ugens.*;
 
+Rain r1;
+
 Minim minim;
 AudioInput in;
 BeatDetect beat;
@@ -33,11 +35,17 @@ float changing_colour; //variable for changing background colour
 int inByte;
 
 //initialize for Albers
+int spacing = 30; // space between lines in pixels
+int border = spacing*2; // top, left, right, bottom border
+int amplification = 3; // frequency amplification factor
+float ySteps; // number of lines in y direction
+
+
 static final int NUM_LINES = 50;
 float t; 
-color line3 = color(255, 255, 255); 
-//color line2 = color(148,0,211);
-color line4 = color(34,58,116);
+float z = 33;
+float y = 60;
+
 
 // initialize for Flowfield object
 FlowField flowfield;
@@ -50,9 +58,8 @@ color line1 = color(243,229,182);
 color line2 = color(255,241,94);
 
 //rain setup
-Rain r1;
 int numDrops = 100;
-Rain[] drops = new Rain[numDrops]; //declare and create the array
+Rain[] drops = new Rain[numDrops]; // Declare and create the array
 
 //----------------------------------------------------------------------------
 void setup() {
@@ -63,19 +70,26 @@ void setup() {
   beat = new BeatDetect();
   beat.setSensitivity(400);
 
-  myPort = new Serial(this, "/dev/cu.usbmodem14301", 9600);
+  myPort = new Serial(this, "/dev/cu.usbmodem1421", 9600);
   // don't generate a serialEvent() unless you get a newline character:
   //myPort.bufferUntil('\n'); // Receiving the data from the Arduino IDE
 
   
   //for MP3 file in
-  song = minim.loadFile("Nucleya - Bass Rani - 02 Bass Rani.mp3");
+  song = minim.loadFile("/Users/sisi/Desktop/LiveCoding/Debut/Agua.mp3");
   song.play();
   song.loop(3);
   
   //initialize flowfield 
   flowfield = new FlowField(50);
   brushes = new ArrayList<PaintBrush>();
+  
+   //Loop through array to create each object
+  for (int i = 0; i < drops.length; i++) {
+
+    drops[i] = new Rain(); // Create each object
+    r1 = new Rain();
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -88,10 +102,19 @@ void serialEvent  (Serial myPort) {
 
 //----------------------------------------------------------------------------
 void draw() {
-  
+   float freqMix = song.mix.get(int(x));
+   float amplitude = song.mix.level();
+   float size = freqMix * spacing * amplification;
+   
+  cam.beginHUD();
   background (0);
   //flowField();
-  rainDrops();
+  //rainDrops(); 
+  
+  //rectangle 
+  fill(255,0,0);
+  rect(height/2, width/2, size*10, size*10);
+  
   
   if (inByte == 1){
     crazyCircle();
@@ -115,13 +138,14 @@ void draw() {
   if (mousePressed && (mouseButton == RIGHT)) {
     myPort.write('0');
   }
+   cam.endHUD();
 }
 
 //----------------------------------------------------------------------------
 void crazyCircle() {
   //comment the background in and out 
   //background(changing_colour, 150, 50); // Initial background color, when we will open the serial window
-  background(0); // Initial background color, when we will open the serial window
+  //background(0); // Initial background color, when we will open the serial window
 
   beat.detect(song.mix);
   
@@ -134,7 +158,7 @@ void crazyCircle() {
 
   cam.beginHUD();
   for (int i = 0; i < width; i++) {
-    stroke(255, song.mix.get(i)*500);
+    stroke(100, song.mix.get(i)*500);
     line(i, height/2 + song.mix.get(i)*400, i, height/2 - song.mix.get(i)*400);
   }
   cam.endHUD();
@@ -167,7 +191,7 @@ void crazyCircle() {
   for (int i = 0; i< total-1; i++) {
 
     beginShape(TRIANGLE_STRIP);
-    stroke(150, 50, 50, song.mix.get(i)*500);
+    stroke(150, 100, 150, song.mix.get(i)*500);
     noFill();
     fill(song.mix.get(i)*500);
 
@@ -185,21 +209,36 @@ void crazyCircle() {
  
 //----------------------------------------------------------------------------
 void Albers(){
-  background(0);
   strokeWeight(3);
-  translate(width/2, height/2);
   
+  
+  //attributes
+  float freqMix = song.mix.get(int(x));
+   float freqLeft = song.left.get(int(x));
+   float freqRight = song.right.get(int(x));
+   float amplitude = song.mix.level();
+   float size = freqMix * spacing * amplification;
+   float red = map(freqLeft, -1, 1, 0, 200);
+   float green = map(freqRight, -1, 1, 0, 50);
+   float blue = map(freqMix, -1, 1, 0, 55);
+   float opacity = map(amplitude, 0, 0.4, 20, 100);
+   
+   color line3 = color(243,229,182); 
+   color line4 = color(255,241,94);
+   
   cam.beginHUD();
-  for (int i=0; i<width; i++){
-   stroke(255);
-   line(x1(t+i)*2, y1(t+i)*2, x2(t+i)*2, y2(t+i)*2);
-   stroke(line2);
-   line(x3(t+i)*2, y3(t+i)*2, x4(t+i)*2, y4(t+i)*2);
+ translate(width/2, height/2);
+  for (int i=0; i<NUM_LINES; i++){
+   stroke(line3);
+   strokeWeight(amplitude*10);
+   line(x1(t+i), y1(t+i), x2(t+i), y2(t+i));
+   stroke(line4);
+   strokeWeight(amplitude*10);
+   line(x3(freqLeft+i), y3(freqLeft+i), x4(freqRight+i), y4(freqRight+i));
   }
   cam.endHUD();
   blendMode (ADD);
-  //point(x1(t), y1(t));
-  //point(x2(t), y2(t));
+
   t += song.mix.level();
 }
 
@@ -229,7 +268,7 @@ float y4(float t) {
 
 //----------------------------------------------------------------------------
 void circleBoom (){
-  background(0);
+  //background(0);
   noFill();
   float amplitude = song.mix.level();
   float size = amplitude * 1000;
@@ -424,14 +463,16 @@ class FlowField {
   }
 }
 
-//----------------------------------------------------------------------------
 void rainDrops(){
+  //Loop through array to use objects. RAIN
+  
   for (int i = 0; i < drops.length; i++) {
-    drops[i] = new Rain(); // Create each object
-    r1 = new Rain();
+    drops[i].fall();
   }
 }
 
+//----------------------------------------------------------------------------
+//class rain
 class Rain {
   float r = random(width);
   float y = random(-height);
@@ -439,9 +480,9 @@ class Rain {
   void fall() {
     y = y + 7;
     // yellow
-    //fill(255,255,0);
+    fill(255,255,0);
      //red
-    fill(255,0,0);
+    //fill(255,0,0);
     
     //shape of ellipse
     ellipse(r, y, 2, 10);
@@ -453,7 +494,6 @@ class Rain {
 
   }
 }
-
 //----------------------------------------------------------------------------  
  void stop() {
   song.close();
