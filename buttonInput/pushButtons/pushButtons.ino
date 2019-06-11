@@ -7,7 +7,7 @@ int button3 = 4;
 int button4 = 3;
 int ledPin = 2;
 int potPin = A1;
-int potOutput;
+// int potOutput;
 
 void setup() {
   pinMode(ledPin, OUTPUT);
@@ -24,7 +24,7 @@ void loop() {
   int bReading2 = digitalRead(button2);
   int bReading3 = digitalRead(button3);
   int bReading4 = digitalRead(button4);
-  potOutput = analogRead(potPin);
+//   potOutput = analogRead(potPin);
   
 //  int mappedOutput = map(potOutput, 0, 1023, 0, 255); //map the output
   
