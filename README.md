@@ -1,5 +1,5 @@
 # LiveCoding Using Processing 
-#### harshikajain  x  sisiyu
+#### Harshika Jain  x  Sisi Yu
 We started out in this project seeking to explore interactions between music and visuals. The process included dabbling with multiple live coding softwares till we chanced upon REPL mode in Processing which allows for capabilities for Livecoding. We also sought for ways for our project to serve be open sourced and documented our process as a guide for others hoping to venture into the world of code generated visuals. 
 
 ## Research Question
