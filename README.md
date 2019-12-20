@@ -1,5 +1,15 @@
 # LiveCoding
 #### harshikajain  x  sisiyu
+We started out in this project seeking to explore interactions between music and visuals. The process included dabbling with multiple live coding softwares till we chanced upon REPL mode in Processing which allows for capabilities for Livecoding. We also sought for ways for our project to serve be open sourced and documented our process as a guide for others hoping to venture into the world of code generated visuals. 
+
+## Research Question
+Looking at new ways of interacting with music through user influenced visuals 
+Exploring the future possibilities of user influence based on the music and audience input
+Exploring how the audience can become part of the performance and influence the visuals created 
+Creation of a feedback loop between the artist and the audience 
+How the environment can start to respond back 
+
+
 ## 1. Circles mapped to  sound
 Click on each image file to view the associated code
 <div class="row">
