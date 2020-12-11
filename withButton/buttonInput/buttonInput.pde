@@ -9,8 +9,6 @@
 // sisixiyu x harshikajain
 
 //----------------------------------------------------------------------------
-Rain r1;
-
 import vsync.*;
 import peasy.*;
 import processing.serial.*;
@@ -23,6 +21,8 @@ import ddf.minim.signals.*;
 import ddf.minim.spi.*;
 import ddf.minim.ugens.*;
 
+Rain r1;
+
 Minim minim;
 AudioInput in;
 BeatDetect beat;
@@ -30,45 +30,40 @@ AudioPlayer song;
 
 Serial myPort; //initialise variable myPort for serial communication
 PeasyCam cam;
-
-float changing_colour; //variable for changing background colour
 int inByte;
 
 //initialize for Albers
+int spacing = 30; // space between lines in pixels
+int border = spacing*2; // top, left, right, bottom border
+int amplification = 3; // frequency amplification factor
+float ySteps; // number of lines in y direction
+
 static final int NUM_LINES = 50;
 float t; 
-color line1 = color(255, 255, 255); 
-//color line2 = color(148,0,211);
-color line2 = color(34,58,116);
+float z = 33;
+float y = 60;
 
-//initialize for pinkFloyd
-float maxX;
-float maxY;
-float x;
-float y;
-int r =  200 ; // right, moving right to the center
+// initialize for Flowfield object
+FlowField flowfield; 
+
+// An ArrayList of brushes
+ArrayList<PaintBrush> brushes;
+int maxparticles = 40000;
+float x = 33;
+color line1 = color(243,229,182); 
+//color line2 = color(148,0,211);
+color line2 = color(255,241,94);
 
 //rain setup
 int numDrops = 100;
 Rain[] drops = new Rain[numDrops]; // Declare and create the array
 
-
-PGraphics pg;
-
-// Flowfield object
-FlowField flowfield;
-// An ArrayList of brushes
-ArrayList<PaintBrush> brushes;
-
-int maxparticles = 40000;
-
-
 //----------------------------------------------------------------------------
 void setup() {
-  size(600, 400, P3D);
+  size(1024, 900, P3D);
   cam = new PeasyCam(this, 500);
 
-  //in = minim.getLineIn(Minim, STEREO, 1024);
+  minim = new Minim(this);
   beat = new BeatDetect();
   beat.setSensitivity(400);
 
@@ -76,28 +71,25 @@ void setup() {
   // don't generate a serialEvent() unless you get a newline character:
   //myPort.bufferUntil('\n'); // Receiving the data from the Arduino IDE
 
-  minim = new Minim(this);
-  song = minim.loadFile("/Users/sisi/Desktop/LiveCoding/Debut/Uyan.mp3");
+  
+  //for MP3 file in
+  song = minim.loadFile("/Users/sisi/Desktop/LiveCoding/Debut/Agua.mp3");
   song.play();
   song.loop(3);
   
-  
-    for (int i = 0; i < drops.length; i++) {
-
-    drops[i] = new Rain(); // Create each object
-    r1 = new Rain();
-  }
-  
-  //brushes
+  //initialize flowfield 
   flowfield = new FlowField(50);
   brushes = new ArrayList<PaintBrush>();
   
-  
-  
+   //Loop through array to create each object
+  for (int i = 0; i < drops.length; i++) {
+    drops[i] = new Rain(); // Create each object
+    r1 = new Rain();
+  }
 }
 
 //----------------------------------------------------------------------------
-void serialEvent  (Serial myPort) {
+void serialEvent (Serial myPort) {
   // Changing the background color according to received data
   //changing_colour  =  float (myPort.readStringUntil('\n')) ;
   inByte = myPort.read();
@@ -106,97 +98,35 @@ void serialEvent  (Serial myPort) {
 
 //----------------------------------------------------------------------------
 void draw() {
-
-     //Loop through array to use objects. RAIN
-     
-    
-     background(0);
-     beat.detect(song.mix); //change to in.mix
-     float freqMix = song.mix.get(int(x)); 
-    float freqLeft = song.left.get(int(x));
-    float freqRight = song.right.get(int(x));
-    float amp = song.mix.level(); 
-    float size = freqMix * 100 *amp; 
-    float red = map(freqLeft, -1, 1, 0, 200);
-    float green = map(freqRight, -1, 1, 0, 50);
-    float blue = map(freqMix, -1, 1, 0, 55);
-    float opacity = map(amp, 0, 0.4, 20, 100);
+   float freqMix = song.mix.get(int(x));
+   float amplitude = song.mix.level();
+   float size = freqMix * spacing * amplification;
    
-   
-     cam.beginHUD();
-    //for (int i = 0; i < drops.length; i++) {
-    //drops[i].fall();
-    //}
-    
-     for (int i=0; i<width; i++){
-    
-   //spikes level 
-    blendMode(ADD);
-    //stroke(0,30,230); 
-    //stroke(0,30,230);
-    //strokeWeight(10);  //10
-    //line(i, height/2+song.mix.get(i)*300, i, height/2-song.mix.get(i)*300); 
-    //stroke(255,255,0);
-    //line(i, height/4 + freqLeft*300, i, height/2 - freqLeft*300);
-    //stroke(255,0,0);
-    ////line(i, height/2 + freqRight*600, i, height/2 - freqRight*600); 
-   
-   //circle
-   stroke(255,0,0); 
-   noFill();
-   strokeWeight(5); 
-   ellipse(width/2,height/2, height/4+song.mix.get(i)*300, height/4+song.mix.get(i)*300);
-   
-   stroke(255);
-   strokeWeight(1); 
-  // if((i%10)==0){
-  //   line(200, song.mix.get(i)*300+200, 400, song.mix.get(i)*300+200);
-  //} else {
-  //   line(250, song.mix.get(i)*300+200, 400, song.mix.get(i)*300+200);
-  // }
-   }
-    
-   //---------------------------------------------------------------------------------
-
-//calm flow 
-    for (int i = 0; i < brushes.size (); i++) {
-    PaintBrush v = brushes.get(i);
-    v.follow(flowfield);
-    v.run();
-    if (v.isDead()) {
-      brushes.remove(i);
-    }
+  cam.beginHUD();
+  background (0);
+  //flowField();
+  //rainDrops(); 
+  
+  //rectangle 
+  fill(255,0,0);
+  rect(height/2, width/2, size*10, size*10);
+  
+  
+  if (inByte == 1){
+    crazyCircle();
   }
-  addBrushes();
-  
-  //----------------------------------------------------------------------------------
-  
-  
-  
-    if (inByte == 1){
-     crazyCircle();
-    }
     
-    if (inByte == 2){
+  if (inByte == 2){
     Albers();
-    }
+  }
     
-    if (inByte == 3){
-    //circleBoom();
-    pinkFloyd();
-    }
+  if (inByte == 3){
+    circleBoom();
+  }
     
-    if (inByte == 4){
-      background (0);
-      cam.beginHUD();
-      for (int i = 0; i < width; i++) {
-        stroke(255, 50, 100, song.mix.get(i)*500);
-        //line(i, height/2 + song.mix.get(i)*400, i, height/2 - song.mix.get(i)*400);
-        //star(i, i, height/2 + song.mix.get(i)*400, height/2 - song.mix.get(i)*400, 8);
-        star(width/2, height/2, height/4 + song.mix.get(i)*400, height/4 - song.mix.get(i)*400, 8);
-      }
-      cam.endHUD();
-    }
+  if (inByte == 4){
+    starBoom();
+  }
   
   if (mousePressed && (mouseButton == LEFT)) {
     myPort.write('1');
@@ -204,17 +134,15 @@ void draw() {
   if (mousePressed && (mouseButton == RIGHT)) {
     myPort.write('0');
   }
-  
-  cam.endHUD();
-  
+   cam.endHUD();
 }
+
 //----------------------------------------------------------------------------
 void crazyCircle() {
   //comment the background in and out 
   //background(changing_colour, 150, 50); // Initial background color, when we will open the serial window
-  
   //background(0); // Initial background color, when we will open the serial window
-  blendMode(ADD); 
+
   beat.detect(song.mix);
   
   blendMode(NORMAL);
@@ -226,7 +154,7 @@ void crazyCircle() {
 
   cam.beginHUD();
   for (int i = 0; i < width; i++) {
-    stroke(255, song.mix.get(i)*500);
+    stroke(100, song.mix.get(i)*500);
     line(i, height/2 + song.mix.get(i)*400, i, height/2 - song.mix.get(i)*400);
   }
   cam.endHUD();
@@ -259,7 +187,7 @@ void crazyCircle() {
   for (int i = 0; i< total-1; i++) {
 
     beginShape(TRIANGLE_STRIP);
-    stroke(150, 50, 50, song.mix.get(i)*500);
+    stroke(150, 100, 150, song.mix.get(i)*500);
     noFill();
     fill(song.mix.get(i)*500);
 
@@ -277,21 +205,36 @@ void crazyCircle() {
  
 //----------------------------------------------------------------------------
 void Albers(){
-  //background(0);
   strokeWeight(3);
-  translate(width/2, height/2);
   
+  
+  //attributes
+  float freqMix = song.mix.get(int(x));
+   float freqLeft = song.left.get(int(x));
+   float freqRight = song.right.get(int(x));
+   float amplitude = song.mix.level();
+   float size = freqMix * spacing * amplification;
+   float red = map(freqLeft, -1, 1, 0, 200);
+   float green = map(freqRight, -1, 1, 0, 50);
+   float blue = map(freqMix, -1, 1, 0, 55);
+   float opacity = map(amplitude, 0, 0.4, 20, 100);
+   
+   color line3 = color(243,229,182); 
+   color line4 = color(255,241,94);
+   
   cam.beginHUD();
-  for (int i=0; i<width; i++){
-   stroke(255);
-   line(x1(t+i)*2, y1(t+i)*2, x2(t+i)*2, y2(t+i)*2);
-   stroke(line2);
-   line(x3(t+i)*2, y3(t+i)*2, x4(t+i)*2, y4(t+i)*2);
+ translate(width/2, height/2);
+  for (int i=0; i<NUM_LINES; i++){
+   stroke(line3);
+   strokeWeight(amplitude*10);
+   line(x1(t+i), y1(t+i), x2(t+i), y2(t+i));
+   stroke(line4);
+   strokeWeight(amplitude*10);
+   line(x3(freqLeft+i), y3(freqLeft+i), x4(freqRight+i), y4(freqRight+i));
   }
   cam.endHUD();
   blendMode (ADD);
-  //point(x1(t), y1(t));
-  //point(x2(t), y2(t));
+
   t += song.mix.level();
 }
 
@@ -321,7 +264,7 @@ float y4(float t) {
 
 //----------------------------------------------------------------------------
 void circleBoom (){
-  
+  //background(0);
   noFill();
   float amplitude = song.mix.level();
   float size = amplitude * 1000;
@@ -334,7 +277,21 @@ void circleBoom (){
 }
 
 //----------------------------------------------------------------------------
+void starBoom() {
+
+  cam.beginHUD();
+  for (int i = 0; i < width; i++) {
+    stroke(255, 50, 100, song.mix.get(i)*500); //hotpink 
+    //stroke(200, 155, 0, song.mix.get(i)*500); //light green
+    //line(i, height/2 + song.mix.get(i)*400, i, height/2 - song.mix.get(i)*400);
+    //star(i, i, height/2 + song.mix.get(i)*400, height/2 - song.mix.get(i)*400, 8);
+    star(width/2, height/2, height/4 + song.mix.get(i)*400, height/4 - song.mix.get(i)*400, 8);
+  }
+  cam.endHUD();
+}
+
 void star(float x, float y, float radius1, float radius2, int npoints) {
+
   float angle = TWO_PI / npoints;
   float halfAngle = angle/2.0;
   beginShape();
@@ -347,158 +304,24 @@ void star(float x, float y, float radius1, float radius2, int npoints) {
     vertex(sx, sy);
   }
   endShape(CLOSE);
- 
 }
+
 //----------------------------------------------------------------------------
-void pinkFloyd(){
-  // BACKGROUND, + FIXED FIGURES
-  
-  stroke ( 255 );
-  noFill ();
-  smooth();
-  triangle ( 450 , 100 , 50 , 800 , 850 , 800 );
-  fill ( 255 , 255 , 255 , 220 );
-  stroke ( 255 );
-  PShape w;
-     w = createShape ();
-     w . beginShape ();
-     w . vertex ( 0 , 500 );
-     w . vertex ( 0 , 510 );
-     w . vertex ( 251 , 420 );
-     w . vertex ( 257 , 410 );
-     w . vertex ( 0 , 500 );
-     w . vertex ( 257 , 410 );
-     w . vertex ( 410 , 390 );
-     w . vertex ( 390 , 460 );
-     w . vertex ( 251 , 420 );
-     
-     shape (w, 10 , 10 );
-     w . endShape ();
-     
-    noFill ();
-  // SQUARES CIRCLE MOVE
-  for (int i = 0; i < width; i++) {
-    maxX = ( float ) 180 / width * song.mix.get(i)*800 ;
-    maxY = ( float ) 180 / height * song.mix.get(i)*800 ;
+void flowField(){
+    for (int i = 0; i < brushes.size (); i++) {
+    PaintBrush v = brushes.get(i);
+    v.follow(flowfield);
+    v.run();
+    if (v.isDead()) {
+      brushes.remove(i);
+    }
   }
-
-  translate ( width / 2 , height / 2 );
-  for ( int i =  0 ; i <  360 ; i += 2 ){
-     x =  sin ( radians (i)) * maxX;
-     y =  cos ( radians (i)) * maxY;
-    
-    // 1st RED FIGURE
-    stroke ( 255 , 3 , 3 );
-    pushMatrix ();
-    translate (x + r, y - 120 );
-    rotate ( radians (i - frameCount ));
-    rect ( 0 , 0 , 35 , 35 );
-    popMatrix ();
-    
-    pushMatrix ();
-    translate ( - x + r, - y - 120 );
-    rotate ( radians (i - frameCount ));
-    rect ( 0 , 0 , 35 , 35 );
-    popMatrix ();
-    
-    // 2nd ORANGE FIGURE
-    stroke ( 255 , 142 , 3 );
-    pushMatrix ();
-    translate (x + r, y - 40 );
-    rotate ( radians (i - frameCount ));
-    rect ( 0 , 0 , 35 , 35 );
-    popMatrix ();
-    
-    pushMatrix ();
-    translate ( - x + r, - y - 40 );
-    rotate ( radians (i - frameCount ));
-    rect ( 0 , 0 , 35 , 35 );
-    popMatrix ();
-    
-    
-    // 3rd YELLOW FIGURE
-    stroke ( 255 , 247 , 3 );
-    pushMatrix ();
-    translate (x + r, y + 40 );
-    rotate ( radians (i - frameCount ));
-    rect ( 0 , 0 , 35 , 35 );
-    popMatrix ();
-    
-    pushMatrix ();
-    translate ( - x + r, - y + 40 );
-    rotate ( radians (i - frameCount ));
-    rect ( 0 , 0 , 35 , 35 );
-    popMatrix ();
-    
-    
-    // 4th GREEN FIGURE
-    stroke ( 3 , 255 , 46 );
-    pushMatrix ();
-    translate (x + r, y + 120 );
-    rotate ( radians (i - frameCount ));
-    rect ( 0 , 0 , 35 , 35 );
-    popMatrix ();
-    
-    pushMatrix ();
-    translate ( - x + r, - y + 120 );
-    rotate ( radians (i - frameCount ));
-    rect ( 0 , 0 , 35 , 35 );
-    popMatrix ();
-
-    // 5th LIGHT BLU FIGURE
-    stroke ( 3 , 232 , 255 );
-    pushMatrix ();
-    translate (x + r, y + 200 );
-    rotate ( radians (i - frameCount ));
-    rect ( 0 , 0 , 35 , 35 );
-    popMatrix ();
-    
-    pushMatrix ();
-    translate ( - x + r, - y + 200 );
-    rotate ( radians (i - frameCount ));
-    rect ( 0 , 0 , 35 , 35 );
-    popMatrix ();
-    
-    // 6th PURPLE FIGURE
-    stroke ( 221 , 3 , 255 );
-    pushMatrix ();
-    translate (x + r, y + 280 );
-    rotate ( radians (i - frameCount ));
-    rect ( 0 , 0 , 35 , 35 );
-    popMatrix ();
-    
-    pushMatrix ();
-    translate ( - x + r, - y + 280 );
-    rotate ( radians (i - frameCount ));
-    rect ( 0 , 0 , 35 , 35 );
-    popMatrix ();
-  }
+  addBrushes();
 }
 
+//--------------------------------------------------------------------------------------
 
-//class rain ---------------------------------------------------------------------
-class Rain {
-  float r = random(width);
-  float y = random(-height);
-
-  void fall() {
-    y = y + 7;
-    // yellow
-    //fill(255,255,0);
-     //red
-    fill(255,0,0);
-    
-    //shape of ellipse
-    ellipse(r, y, 2, 10);
-
-   if(y>height){
-   r = random(width);
-   y = random(-200);
-   }
-
-  }
-}
-
+//Testing starts here 
 void addBrushes() {
   if (brushes.size() < maxparticles) {
     for (int k = 0; k < 50; k++) {
@@ -506,6 +329,8 @@ void addBrushes() {
     }
   }
 }
+
+//--------------------------------------------------------------------------------------
 class PaintBrush {
 
   // The usual stuff
@@ -595,8 +420,8 @@ class PaintBrush {
   }
 }
 
+//--------------------------------------------------------------------------------------
 class FlowField {
-
   // A flow field is a two dimensional array of PVectors
   PVector[][] field;
   int cols, rows; // Columns and Rows
@@ -633,10 +458,40 @@ class FlowField {
     return field[column][row].get();
   }
 }
-//----------------------------------------------------------------------------
+
+void rainDrops(){
+  //Loop through array to use objects. RAIN
+  
+  for (int i = 0; i < drops.length; i++) {
+    drops[i].fall();
+  }
+}
 
 //----------------------------------------------------------------------------
-void stop() {
+//class rain
+class Rain {
+  float r = random(width);
+  float y = random(-height);
+
+  void fall() {
+    y = y + 7;
+    // yellow
+    fill(255,255,0);
+     //red
+    //fill(255,0,0);
+    
+    //shape of ellipse
+    ellipse(r, y, 2, 10);
+
+   if(y>height){
+   r = random(width);
+   y = random(-200);
+   }
+
+  }
+}
+//----------------------------------------------------------------------------  
+ void stop() {
   song.close();
   minim.stop();
   super.stop();

@@ -1,8 +1,11 @@
 // FOR PROCESSING CONSOLE 
-//code has been referenced from different locations
-//triangles code: https://www.openprocessing.org/sketch/584467
+// code has been referenced from different locations
+// triangles code: https://www.openprocessing.org/sketch/584467
 // tutorial on arduino and processing communication: https://maker.pro/arduino/tutorial/how-to-make-arduino-and-processing-ide-communicate
+
 // harshikajain  x  sisiyu
+
+//----------------------------------------------------------------------------
 
 import processing.serial.*; //import library to communicate with arduino
 Serial myPort; //initialise variable myPort for serial communication
@@ -18,6 +21,7 @@ boolean flag=true;
 int distance=100;
 
 import processing.sound.*;
+
 //----------------------------------------------------------------------------
 void setup() {
   size (600, 600); //size of the serial window

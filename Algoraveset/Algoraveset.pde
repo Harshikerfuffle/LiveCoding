@@ -60,7 +60,6 @@ void setup() {
   //in2.start(); 
   //in2.play(); 
   //in = minim.getLineIn(); 
-  
 
   song = minim.loadFile("/Users/sisi/Desktop/LiveCoding/Debut/Nina.mp3");
   song.play();
@@ -79,24 +78,19 @@ void draw() {
   //background(changing_colour, 150, 50); // Initial background color, when we will open the serial window
   background(50, 50, 200); // Initial background color, when we will open the serial window
 
-  
   beat.detect(song.mix);
   
-  
   //cam.beginHUD();
-
   //for (int i=0; i<width; i++){
   // stroke(255); 
   // line(i, height/2+song.mix.get(i)*300, i, height/2-song.mix.get(i)*300); 
   //}
   //cam.endHUD();
 
-
 //Calling pattern
 //----------------------------------------------------------------------------------------
   //stroke(255);
   //Albers(); 
-
   
   //--------------------------------------------------------------------------------------
   blendMode(NORMAL);
@@ -157,8 +151,6 @@ void draw() {
     background(255);
     //Albers(); 
   }
-
-
 //---------------------------------------------------------------------------------------
   //if (mousePressed && (mouseButton == LEFT)) {
   //  myPort.write('1');
@@ -166,13 +158,7 @@ void draw() {
   //if (mousePressed && (mouseButton == RIGHT)) {
   //  myPort.write('0');
   //}
-
-//-------------------------------------------------------------------------------------
-  
-  
-//--------------------------------------------------------------------------------------
 }
-
 
 //----------------------------------------------------------------------------
 
